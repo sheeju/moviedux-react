@@ -1,10 +1,12 @@
-import { useEffect, useState } from "react";
+import { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { Link, Route, BrowserRouter as Router, Routes } from "react-router-dom";
 import "./App.css";
 import Footer from "./components/Footer";
 import Header from "./components/Header";
 import MoviesGrid from "./components/MoviesGrid";
 import Watchlist from "./components/Watchlist";
+import { setMovies, toggleWatchlist } from './store';
 import "./styles.css";
 
 export interface Movie {
@@ -16,23 +18,21 @@ export interface Movie {
 }
 
 export default function App() {
-  const [movies, setMovies] = useState<Movie[]>([]);
-  const [watchlist, setWatchlist] = useState<number[]>([]);
+  const movies = useSelector((state: { movies: Movie[] }) => state.movies);
+  const watchlist = useSelector((state: { watchlist: Movie[] }) => state.watchlist);
+  const dispatch = useDispatch();
 
   useEffect(() => {
     async function fetchMovies() {
+      console.log('Fetching movies...');
       const response = await fetch("movies.json");
-      setMovies(await response.json());
+      dispatch(setMovies(await response.json()));
     }
     fetchMovies();
-  }, []);
+  }, [dispatch]);
 
-  const toggleWatchlist = (movieId: number) => {
-    setWatchlist((prev) =>
-      prev.includes(movieId)
-        ? prev.filter((id) => id !== movieId)
-        : [...prev, movieId],
-    );
+  const handleToggleWatchlist = (movieId: number) => {
+    dispatch(toggleWatchlist(movieId));
   };
 
   return (
@@ -57,7 +57,7 @@ export default function App() {
                 <MoviesGrid
                   movies={movies}
                   watchlist={watchlist}
-                  toggleWatchlist={toggleWatchlist}
+                  toggleWatchlist={handleToggleWatchlist}
                 />
               }
             />
@@ -67,7 +67,7 @@ export default function App() {
                 <Watchlist
                   movies={movies}
                   watchlist={watchlist}
-                  toggleWatchlist={toggleWatchlist}
+                  toggleWatchlist={handleToggleWatchlist}
                 />
               }
             />
