@@ -1,3 +1,4 @@
+import { composeWithDevTools } from "@redux-devtools/extension";
 import { createStore } from "redux";
 
 export interface Movie {
@@ -7,6 +8,11 @@ export interface Movie {
   readonly genre: string;
   readonly rating: string;
 }
+
+const composeEnhancers = composeWithDevTools({
+  trace: true,
+  traceLimit: 25,
+});
 
 // Define action types
 const SET_MOVIES = "SET_MOVIES";
@@ -56,4 +62,4 @@ const reducer = (state = initialState, action: Action) => {
 };
 
 // Create store
-export const store = createStore(reducer);
+export const store = createStore(reducer, composeEnhancers());
