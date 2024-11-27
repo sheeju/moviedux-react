@@ -32,21 +32,24 @@ const initialState = {
 // Define reducer
 interface Action {
   type: string;
-  payload?: any;
+  payload?: Movie[] | number;
 }
 
 const reducer = (state = initialState, action: Action) => {
   switch (action.type) {
     case SET_MOVIES:
       console.log("SET_MOVIES", action.payload);
-      return { ...state, movies: action.payload };
+      return { ...state, movies: action.payload as Movie[] };
     case TOGGLE_WATCHLIST:
-      return {
-        ...state,
-        watchlist: state.watchlist.includes(action.payload)
-          ? state.watchlist.filter((id) => id !== action.payload)
-          : [...state.watchlist, action.payload],
-      };
+      if (typeof action.payload === "number") {
+        return {
+          ...state,
+          watchlist: state.watchlist.includes(action.payload)
+            ? state.watchlist.filter((id) => id !== action.payload)
+            : [...state.watchlist, action.payload],
+        };
+      }
+      return state;
     default:
       return state;
   }
