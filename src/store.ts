@@ -1,65 +1,56 @@
-import { composeWithDevTools } from "@redux-devtools/extension";
-import { createStore } from "redux";
+import { configureStore, createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-export interface Movie {
-  readonly id: number;
-  readonly title: string;
-  readonly image: string;
-  readonly genre: string;
-  readonly rating: string;
+// Define the initial state using that type
+interface Movie {
+  id: number;
+  title: string;
+  image: string;
+  genre: string;
+  rating: string;
 }
 
-const composeEnhancers = composeWithDevTools({
-  trace: true,
-  traceLimit: 25,
-});
+interface AppState {
+  movies: Movie[];
+  watchlist: number[];
+}
 
-// Define action types
-const SET_MOVIES = "SET_MOVIES";
-const TOGGLE_WATCHLIST = "TOGGLE_WATCHLIST";
-
-// Define action creators
-export const setMovies = (movies: Movie[]) => ({
-  type: SET_MOVIES,
-  payload: movies,
-});
-
-export const toggleWatchlist = (movieId: number) => ({
-  type: TOGGLE_WATCHLIST,
-  payload: movieId,
-});
-
-// Define initial state
-const initialState = {
-  movies: [] as Movie[],
-  watchlist: [] as number[],
+const initialState: AppState = {
+  movies: [],
+  watchlist: [],
 };
 
-// Define reducer
-interface Action {
-  type: string;
-  payload?: Movie[] | number;
-}
-
-const reducer = (state = initialState, action: Action) => {
-  switch (action.type) {
-    case SET_MOVIES:
-      console.log("SET_MOVIES", action.payload);
-      return { ...state, movies: action.payload as Movie[] };
-    case TOGGLE_WATCHLIST:
-      if (typeof action.payload === "number") {
-        return {
-          ...state,
-          watchlist: state.watchlist.includes(action.payload)
-            ? state.watchlist.filter((id) => id !== action.payload)
-            : [...state.watchlist, action.payload],
-        };
+// Create a slice
+const moviesSlice = createSlice({
+  name: "movies",
+  initialState,
+  reducers: {
+    setMovies(state, action: PayloadAction<Movie[]>) {
+      state.movies = action.payload;
+    },
+    toggleWatchlist(state, action: PayloadAction<number>) {
+      const movieId = action.payload;
+      if (state.watchlist.includes(movieId)) {
+        state.watchlist = state.watchlist.filter((id) => id !== movieId);
+      } else {
+        state.watchlist.push(movieId);
       }
-      return state;
-    default:
-      return state;
-  }
-};
+    },
+  },
+});
 
-// Create store
-export const store = createStore(reducer, composeEnhancers());
+// Export actions
+export const { setMovies, toggleWatchlist } = moviesSlice.actions;
+
+// Configure store with DevTools options
+const store = configureStore({
+  reducer: {
+    movies: moviesSlice.reducer,
+  },
+  devTools: {
+    name: "Movie App",
+    trace: true,
+    traceLimit: 25,
+  },
+});
+
+export default store;

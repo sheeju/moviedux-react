@@ -18,8 +18,8 @@ export interface Movie {
 }
 
 export default function App() {
-  const movies = useSelector((state: { movies: Movie[] }) => state.movies);
-  const watchlist = useSelector((state: { watchlist: Movie[] }) => state.watchlist);
+  const movies = useSelector((state: any) => state.movies.movies);
+  const watchlist = useSelector((state: any) => state.movies.watchlist);
   const dispatch = useDispatch();
 
   useEffect(() => {
